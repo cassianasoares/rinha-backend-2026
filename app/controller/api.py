@@ -28,7 +28,7 @@ async def ready():
 
 
 @router.post("/fraud-score", response_model=FraudScoreResponse, tags=["scoring"])
-async def fraud_score(payload: TransactionPayload):
+def fraud_score(payload: TransactionPayload):
     if not references.is_ready():
         raise HTTPException(status_code=503, detail="Service not ready — references not loaded")
 

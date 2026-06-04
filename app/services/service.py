@@ -19,7 +19,6 @@ def score_transaction(payload: TransactionPayload, start_time: float) -> FraudSc
 
     # Step 3: Look up labels and IDs for the neighbors
     labels_array = references.get_labels()
-    ids_array = references.get_ids()
 
     neighbors: List[NeighborInfo] = []
     fraud_count = 0
@@ -28,8 +27,9 @@ def score_transaction(payload: TransactionPayload, start_time: float) -> FraudSc
         idx = int(idx)
         if idx < 0:
             continue
-        neighbor_label = str(labels_array[idx])
-        neighbor_id = str(ids_array[idx])
+        raw_label = labels_array[idx]
+        neighbor_label = raw_label.decode('utf-8') if isinstance(raw_label, bytes) else str(raw_label)
+        neighbor_id = str(idx)
 
         if neighbor_label == config.FRAUD_LABEL_KEY:
             fraud_count += 1
@@ -41,6 +41,7 @@ def score_transaction(payload: TransactionPayload, start_time: float) -> FraudSc
                 distance=float(dist),
             )
         )
+        logger.debug(f"Neighbor {neighbor_id}: label={neighbor_label}, distance={dist:.4f}")
 
     # Step 4: Calculate fraud score and approval
     actual_neighbors = len(neighbors)
@@ -57,6 +58,6 @@ def score_transaction(payload: TransactionPayload, start_time: float) -> FraudSc
 
     return FraudScoreResponse(
         approved=approved,
-        fraud_score=fraud_score_value,
-        neighbors=neighbors,
+        fraud_score=fraud_score_value
+    #    neighbors=neighbors,
     )

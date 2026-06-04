@@ -77,8 +77,8 @@ def save_index(index: faiss.Index, path: str = config.FAISS_INDEX_PATH) -> None:
 def load_index(path: str = config.FAISS_INDEX_PATH) -> faiss.Index | None:
     if not Path(path).exists():
         return None
-    index = faiss.read_index(path)
-    if isinstance(index, faiss.IndexIVFFlat):
+    index = faiss.read_index(str(path), faiss.IO_FLAG_MMAP)
+    if hasattr(index, 'nprobe'):
         index.nprobe = config.FAISS_NPROBE
     logger.info(f"FAISS index loaded from {path} ({index.ntotal} vectors)")
     return index

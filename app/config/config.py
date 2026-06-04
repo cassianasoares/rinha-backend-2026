@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 # Normalization thresholds (from data-model.md)
 MAX_AMOUNT = 10000.0
 MAX_INSTALLMENTS = 12.0
@@ -14,7 +16,7 @@ MAX_MERCHANT_AMOUNT = 10000.0
 FAISS_DIMENSION = 14
 FAISS_NLIST = 100
 FAISS_NPROBE = 10
-FAISS_INDEX_PATH = "faiss_index.bin"
+FAISS_INDEX_PATH = BASE_DIR / "data" / "faiss_index.bin"
 
 # Fraud scoring thresholds
 FRAUD_THRESHOLD = 0.6  # fraud_score >= 0.6 => rejected
@@ -26,8 +28,4 @@ MCC_RISK_DEFAULT = 0.5  # Default MCC risk if unknown merchant
 
 # Server configuration
 READY_STATUS_KEY = "ready"
-BASE_DIR = Path(__file__).resolve().parent.parent
-REFERENCE_DATA_PATH = BASE_DIR / "data" / "references.json.gz"
-VECTORS_MEMMAP_PATH = "vectors.npy"
-LABELS_ARRAY_PATH = "labels.npy"
-IDS_ARRAY_PATH = "ids.npy"
+LABELS_ARRAY_PATH = BASE_DIR / "data" / "labels.npy"

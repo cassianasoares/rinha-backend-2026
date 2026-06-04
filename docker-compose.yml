@@ -13,7 +13,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - ./data/references.json.gz:/app/data/references.json.gz:ro
+      - ./data:/app/data:ro
     deploy:
       resources:
         limits:
@@ -34,7 +34,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - ./data/references.json.gz:/app/data/references.json.gz:ro
+      - ./data:/app/data:ro
     deploy:
       resources:
         limits:
