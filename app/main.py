@@ -8,6 +8,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 
 from services import references
 from services import search
@@ -49,6 +50,7 @@ app = FastAPI(
     description="API for fraud risk scoring using FAISS nearest neighbor search",
     version="1.0.0",
     lifespan=lifespan,
+    default_response_class=ORJSONResponse,
 )
 
 app.include_router(api.router)

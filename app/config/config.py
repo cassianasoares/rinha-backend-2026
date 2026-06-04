@@ -15,7 +15,7 @@ MAX_MERCHANT_AMOUNT = 10000.0
 # FAISS index parameters (from research.md Phase 1)
 FAISS_DIMENSION = 14
 FAISS_NLIST = 100
-FAISS_NPROBE = 10
+FAISS_NPROBE = 2
 FAISS_INDEX_PATH = BASE_DIR / "data" / "faiss_index.bin"
 
 # Fraud scoring thresholds

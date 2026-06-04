@@ -25,10 +25,6 @@ mcc_risk: Dict[str, float] = {
     "5999": 0.50,
 }
 
-def limitar(valor: float) -> float:
-    """Limita valor entre 0 e 1."""
-    return max(0.0, min(1.0, valor))
-
 def vectorize_transaction(payload) -> np.ndarray:
     tx = payload.transaction
     cust = payload.customer
@@ -42,13 +38,13 @@ def vectorize_transaction(payload) -> np.ndarray:
     )
 
     # 0 - amount
-    amount = limitar(tx.amount / MAX_AMOUNT)
+    amount = max(0.0, min(1.0, tx.amount / MAX_AMOUNT))
 
     # 1 - installments
-    installments = limitar(tx.installments / MAX_INSTALLMENTS)
+    installments = max(0.0, min(1.0, tx.installments / MAX_INSTALLMENTS))
 
     # 2 - amount_vs_avg
-    amount_vs_avg = limitar((tx.amount / cust.avg_amount) / AMOUNT_VS_AVG_RATIO) if cust.avg_amount > 0 else 0.0
+    amount_vs_avg = max(0.0, min(1.0, (tx.amount / cust.avg_amount) / AMOUNT_VS_AVG_RATIO)) if cust.avg_amount > 0 else 0.0
 
     # 3 - hour_of_day
     hour_of_day = tx.requested_at.hour / 23.0
@@ -59,18 +55,18 @@ def vectorize_transaction(payload) -> np.ndarray:
     # 5 - minutes_since_last_tx
     if last_tx:
         delta_minutes = (tx.requested_at - last_tx.timestamp).total_seconds() / 60.0
-        minutes_since_last_tx = limitar(delta_minutes / MAX_MINUTES)
+        minutes_since_last_tx = max(0.0, min(1.0, delta_minutes / MAX_MINUTES))
     else:
         minutes_since_last_tx = -1.0
 
     # 6 - km_from_last_tx
-    km_from_last_tx = limitar(last_tx.km_from_current / MAX_KM) if last_tx else -1.0
+    km_from_last_tx = max(0.0, min(1.0, last_tx.km_from_current / MAX_KM)) if last_tx else -1.0
 
     # 7 - km_from_home
-    km_from_home = limitar(term.km_from_home / MAX_KM)
+    km_from_home = max(0.0, min(1.0, term.km_from_home / MAX_KM))
 
     # 8 - tx_count_24h
-    tx_count_24h = limitar(cust.tx_count_24h / MAX_TX_COUNT_24H)
+    tx_count_24h = max(0.0, min(1.0, cust.tx_count_24h / MAX_TX_COUNT_24H))
 
     # 9 - is_online
     is_online = 1.0 if term.is_online else 0.0
@@ -85,7 +81,7 @@ def vectorize_transaction(payload) -> np.ndarray:
     mcc_risk_value = mcc_risk.get(merch.mcc, 0.5)
 
     # 13 - merchant_avg_amount
-    merchant_avg_amount = limitar(merch.avg_amount / MAX_MERCHANT_AVG_AMOUNT)
+    merchant_avg_amount = max(0.0, min(1.0, merch.avg_amount / MAX_MERCHANT_AVG_AMOUNT))
 
     return np.array([
         amount,
