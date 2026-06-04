@@ -41,7 +41,7 @@ def score_transaction(payload: TransactionPayload, start_time: float) -> FraudSc
                 distance=float(dist),
             )
         )
-        logger.debug(f"Neighbor {neighbor_id}: label={neighbor_label}, distance={dist:.4f}")
+        logger.debug("Neighbor %s: label=%s, distance=%.4f", neighbor_id, neighbor_label, dist)
 
     # Step 4: Calculate fraud score and approval
     actual_neighbors = len(neighbors)
