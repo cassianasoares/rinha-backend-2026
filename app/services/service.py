@@ -1,63 +1,38 @@
 from asyncio.log import logger
 from config import config
-import time
-from typing import List
+import numpy as np
 
 from services import search
-from models.models import FraudScoreResponse, NeighborInfo, TransactionPayload
+from models.models import FraudScoreResponse, TransactionPayload
 from services import references
 from services.vectorize import vectorize_transaction
 
-
-def score_transaction(payload: TransactionPayload, start_time: float) -> FraudScoreResponse:
+def score_transaction(payload: TransactionPayload) -> FraudScoreResponse:
     # Step 1: Vectorize the transaction
     query_vector = vectorize_transaction(payload)
 
-    # Step 2: Buscar o índice FAISS global corretamente
-    index = search.get_global_index()   # ✅ com parênteses, retorna o objeto FAISS
+    # Step 2: Search FAISS index
+    index = search.get_global_index()
     neighbor_ids, distances = search.search_neighbors(index, query_vector, k=config.TOP_K_NEIGHBORS)
 
-    # Step 3: Look up labels and IDs for the neighbors
+    # Step 3: Vectorized fraud count
     labels_array = references.get_labels()
 
-    neighbors: List[NeighborInfo] = []
-    fraud_count = 0
+    # Ensure neighbor_ids are valid and within bounds
+    valid_mask = neighbor_ids >= 0
+    valid_ids = neighbor_ids[valid_mask]
 
-    for idx, dist in zip(neighbor_ids, distances):
-        idx = int(idx)
-        if idx < 0:
-            continue
-        raw_label = labels_array[idx]
-        neighbor_label = raw_label.decode('utf-8') if isinstance(raw_label, bytes) else str(raw_label)
-        neighbor_id = str(idx)
+    if len(valid_ids) == 0:
+        return FraudScoreResponse(approved=True, fraud_score=0.0)
 
-        if neighbor_label == config.FRAUD_LABEL_KEY:
-            fraud_count += 1
-
-        neighbors.append(
-            NeighborInfo(
-                neighbor_id=neighbor_id,
-                label=neighbor_label,
-                distance=float(dist),
-            )
-        )
-        logger.debug("Neighbor %s: label=%s, distance=%.4f", neighbor_id, neighbor_label, dist)
+    fraud_count = np.sum(labels_array[valid_ids] == config.FRAUD_LABEL_INT)
 
     # Step 4: Calculate fraud score and approval
-    actual_neighbors = len(neighbors)
-    fraud_score_value = fraud_count / actual_neighbors if actual_neighbors > 0 else 0.0
+    actual_neighbors = len(valid_ids)
+    fraud_score_value = float(fraud_count) / actual_neighbors
     approved = fraud_score_value < config.FRAUD_THRESHOLD
-
-    elapsed_ms = (time.perf_counter() - start_time) * 1000
-    logger.info(
-        f"Scored transaction {payload.id}: "
-        f"fraud_score={fraud_score_value:.2f}, approved={approved}, "
-        f"fraud_neighbors={fraud_count}/{actual_neighbors}, "
-        f"elapsed={elapsed_ms:.1f}ms"
-    )
 
     return FraudScoreResponse(
         approved=approved,
         fraud_score=fraud_score_value
-    #    neighbors=neighbors,
     )

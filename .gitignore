@@ -1,7 +1,5 @@
 .vscode
 
---__pycache__/
-*--__init__.py
+__pycache__/
+__init__.py
 *.pyc
-
-requirements.txt

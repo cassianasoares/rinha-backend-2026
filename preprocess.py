@@ -16,7 +16,7 @@ FAISS_NLIST = 100
 FAISS_NPROBE = 10
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
-REFERENCE_DATA_PATH = os.path.join(DATA_DIR, "references.json.gz")
+REFERENCE_DATA_PATH = os.path.join(BASE_DIR, "references.json.gz")
 FAISS_INDEX_PATH = os.path.join(DATA_DIR, "faiss_index.bin")
 LABELS_ARRAY_PATH = os.path.join(DATA_DIR, "labels.npy")
 
@@ -39,10 +39,11 @@ def main():
         
     logger.info(f"Loaded {len(vectors)} records.")
     
-    # Save labels as fixed-size string array to save memory
-    labels_array = np.array(labels, dtype="S10")
+    # Save labels as integers (1 for fraud, 0 otherwise)
+    labels_int = [1 if label == "fraud" else 0 for label in labels]
+    labels_array = np.array(labels_int, dtype=np.int8)
     np.save(LABELS_ARRAY_PATH, labels_array)
-    logger.info(f"Saved labels to {LABELS_ARRAY_PATH}")
+    logger.info(f"Saved labels as integers to {LABELS_ARRAY_PATH}")
     
     # Build FAISS index with quantization (int8)
     vectors_array = np.array(vectors, dtype=np.float32)

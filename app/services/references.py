@@ -15,9 +15,9 @@ def load_references() -> bool:
 
     try:
         logger.info(f"Loading labels from {config.LABELS_ARRAY_PATH}")
-        _labels_array = np.load(config.LABELS_ARRAY_PATH, mmap_mode="r")
+        _labels_array = np.load(config.LABELS_ARRAY_PATH)
         _is_ready = True
-        logger.info("Labels loaded successfully")
+        logger.info("Labels loaded successfully into memory")
         return True
 
     except Exception as e:
