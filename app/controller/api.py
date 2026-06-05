@@ -10,7 +10,7 @@ import time
 
 from fastapi import APIRouter, HTTPException
 
-from services import references, search
+from services import references
 from models.models import FraudScoreResponse, TransactionPayload
 from services.service import score_transaction
 
@@ -29,13 +29,4 @@ async def ready():
 
 @router.post("/fraud-score", response_model=FraudScoreResponse, tags=["scoring"])
 def fraud_score(payload: TransactionPayload):
-    if not references.is_ready():
-        raise HTTPException(status_code=503, detail="Service not ready — references not loaded")
-
-    index = search.get_global_index()
-    if index is None:
-        raise HTTPException(status_code=503, detail="Service not ready — FAISS index not built")
-
-    start_time = time.perf_counter()
-
-    return score_transaction(payload, start_time)
+    return score_transaction(payload)

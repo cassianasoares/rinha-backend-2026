@@ -12,7 +12,6 @@ class NeighborInfo(BaseModel):
 class FraudScoreResponse(BaseModel):
     approved: bool
     fraud_score: float = Field(..., ge=0.0, le=1.0)
-#    neighbors: List[NeighborInfo] = []
 
 
 class Transaction(BaseModel):
