@@ -1,5 +1,21 @@
-.vscode
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
 
+# Python
 __pycache__/
-__init__.py
-*.pyc
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Project specific
+data/
+references.json.gz
+*.bin
+*.npy

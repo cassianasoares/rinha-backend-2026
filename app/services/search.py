@@ -1,9 +1,3 @@
-"""FAISS-based vector search module for fraud scoring.
-
-Builds a FAISS index from reference vectors and supports top-k neighbor
-search using L2 (Euclidean) distance metric.
-"""
-
 import logging
 from typing import Tuple
 from pathlib import Path
@@ -19,35 +13,11 @@ logger = logging.getLogger(__name__)
 _faiss_index: faiss.Index | None = None
 
 
-def build_faiss_index(vectors: np.ndarray) -> faiss.Index:
-    n_vectors, dimension = vectors.shape
-    assert dimension == config.FAISS_DIMENSION
-
-    if vectors.dtype != np.float32 or not vectors.flags['C_CONTIGUOUS']:
-        vectors = np.ascontiguousarray(vectors, dtype=np.float32)
-
-    if n_vectors >= config.FAISS_NLIST:
-        quantizer = faiss.IndexFlatL2(dimension)
-        index = faiss.IndexIVFFlat(quantizer, dimension, config.FAISS_NLIST, faiss.METRIC_L2)
-        index.train(vectors)
-        index.add(vectors)
-        index.nprobe = config.FAISS_NPROBE
-    else:
-        index = faiss.IndexFlatL2(dimension)
-        index.add(vectors)
-
-    return index
-
-
 def search_neighbors(
     index: faiss.Index,
     query_vector: np.ndarray,
     k: int = config.TOP_K_NEIGHBORS,
 ) -> Tuple[np.ndarray, np.ndarray]:
-
-    # Verificação extra para garantir que index é válido
-    # if not isinstance(index, faiss.Index):
-    #     raise TypeError(f"Expected faiss.Index, got {type(index)}")
 
     if query_vector.ndim == 1:
         query_vector = query_vector.reshape(1, -1)
@@ -71,8 +41,14 @@ def load_index(path: str = config.FAISS_INDEX_PATH) -> faiss.Index | None:
     if not Path(path).exists():
         return None
     index = faiss.read_index(str(path), faiss.IO_FLAG_MMAP)
-    if hasattr(index, 'nprobe'):
+
+    # Ajusta nprobe se o índice suportar (IVF)
+    if hasattr(index, "nprobe"):
         index.nprobe = config.FAISS_NPROBE
+        logger.info(f"FAISS index loaded with nprobe={index.nprobe}")
+    else:
+        logger.info(f"FAISS index loaded (type={type(index).__name__})")
+
     return index
 
 

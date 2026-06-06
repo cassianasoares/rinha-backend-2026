@@ -12,10 +12,10 @@ MAX_TX_COUNT_24H = 20.0
 MAX_MINUTES_LAST_TX = 1440.0  # 24 hours
 MAX_MERCHANT_AMOUNT = 10000.0
 
-# FAISS index parameters (from research.md Phase 1)
+# FAISS index parameters
 FAISS_DIMENSION = 14
-FAISS_NLIST = 100
-FAISS_NPROBE = 3
+FAISS_NLIST = 150
+FAISS_NPROBE = 2
 FAISS_INDEX_PATH = BASE_DIR / "data" / "faiss_index.bin"
 
 # Fraud scoring thresholds

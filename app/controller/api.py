@@ -9,6 +9,7 @@ import logging
 import time
 
 from fastapi import APIRouter, HTTPException
+from fastapi.concurrency import run_in_threadpool
 
 from services import references
 from models.models import FraudScoreResponse, TransactionPayload
@@ -28,5 +29,15 @@ async def ready():
 
 
 @router.post("/fraud-score", response_model=FraudScoreResponse, tags=["scoring"])
-def fraud_score(payload: TransactionPayload):
-    return score_transaction(payload)
+async def fraud_score(payload: TransactionPayload):
+    # Marca o início da execução
+    start = time.perf_counter()
+
+    # Executa a lógica principal (FAISS, etc.) em threadpool
+    result = await run_in_threadpool(score_transaction, payload)
+
+    # Marca o fim e calcula tempo
+    elapsed = time.perf_counter() - start
+    logger.info(f"/fraud-score execution time: {elapsed*1000:.2f} ms")
+
+    return result
