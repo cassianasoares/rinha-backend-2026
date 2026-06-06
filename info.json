@@ -1,0 +1,7 @@
+{
+    "participants": ["Cassiana Soares"],
+    "social": ["https://github.com/cassianasoares", "https://www.linkedin.com/in/cassiana-soares/"],
+    "source-code-repo": "https://github.com/cassianasoares/rinha-backend-2026",
+    "stack": ["python", "fastapi", "faiss", "numpy", "nginx", "docker"],
+    "open_to_work": true
+}
