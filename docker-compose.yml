@@ -1,8 +1,10 @@
+version: "3.9"
+
 services:
   api1:
     build:
       context: .
-      dockerfile: Dockerfile.md
+      dockerfile: Dockerfile
     container_name: fraud_api_1
     restart: always
     healthcheck:
@@ -11,7 +13,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - ./data:/app/data:ro
+      - ./app/data:/app/data:ro
     deploy:
       resources:
         limits:
@@ -23,7 +25,7 @@ services:
   api2:
     build:
       context: .
-      dockerfile: Dockerfile.md
+      dockerfile: Dockerfile
     container_name: fraud_api_2
     restart: always
     healthcheck:
@@ -32,7 +34,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - ./data:/app/data:ro
+      - ./app/data:/app/data:ro
     deploy:
       resources:
         limits:
