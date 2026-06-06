@@ -16,8 +16,14 @@ def load_references() -> bool:
     try:
         logger.info(f"Loading labels from {config.LABELS_ARRAY_PATH}")
         _labels_array = np.load(config.LABELS_ARRAY_PATH)
+
+        # Garante que os labels estão no formato int8
+        if _labels_array.dtype != np.int8:
+            logger.warning(f"Labels dtype {_labels_array.dtype}, converting to int8")
+            _labels_array = _labels_array.astype(np.int8)
+
         _is_ready = True
-        logger.info("Labels loaded successfully into memory")
+        logger.info(f"Labels loaded successfully into memory (shape={_labels_array.shape}, dtype={_labels_array.dtype})")
         return True
 
     except Exception as e:

@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 # Configs
 FAISS_DIMENSION = 14
-FAISS_NLIST = 100
-FAISS_NPROBE = 10
+FAISS_NLIST = 150        # número de listas (clusters)
+FAISS_NPROBE = 2        # número de listas exploradas na busca
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 REFERENCE_DATA_PATH = os.path.join(BASE_DIR, "references.json.gz")
@@ -45,16 +45,19 @@ def main():
     np.save(LABELS_ARRAY_PATH, labels_array)
     logger.info(f"Saved labels as integers to {LABELS_ARRAY_PATH}")
     
-    # Build FAISS index with quantization (int8)
+    # Build FAISS index with IVF + quantization (QT_8bit)
     vectors_array = np.array(vectors, dtype=np.float32)
     n_vectors, dimension = vectors_array.shape
     
     logger.info(f"Building FAISS IndexIVFScalarQuantizer (QT_8bit) for {n_vectors} vectors...")
     quantizer = faiss.IndexFlatL2(dimension)
     
-    # QT_8bit or QT_fp16
     index = faiss.IndexIVFScalarQuantizer(
-        quantizer, dimension, FAISS_NLIST, faiss.ScalarQuantizer.QT_8bit, faiss.METRIC_L2
+        quantizer,
+        dimension,
+        FAISS_NLIST,
+        faiss.ScalarQuantizer.QT_8bit,
+        faiss.METRIC_L2
     )
     
     index.train(vectors_array)
