@@ -1,17 +1,13 @@
-version: "3.9"
-
 services:
   api1:
     image: cassias18/rinha-backend-api-2026:latest
-    container_name: fraud_api_1
+    container_name: fraud_api_1_sub
     restart: always
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
       interval: 10s
       timeout: 5s
       retries: 5
-    volumes:
-      - ./app/data:/app/data:ro
     deploy:
       resources:
         limits:
@@ -22,15 +18,13 @@ services:
 
   api2:
     image: cassias18/rinha-backend-api-2026:latest
-    container_name: fraud_api_2
+    container_name: fraud_api_2_sub
     restart: always
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
       interval: 10s
       timeout: 5s
       retries: 5
-    volumes:
-      - ./app/data:/app/data:ro
     deploy:
       resources:
         limits:
@@ -41,7 +35,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: fraud_lb
+    container_name: fraud_ng
     restart: always
     ports:
       - "9999:9999"
