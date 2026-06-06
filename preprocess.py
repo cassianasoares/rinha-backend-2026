@@ -6,16 +6,14 @@ import logging
 import os
 import sys
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configs
-FAISS_DIMENSION = 14
 FAISS_NLIST = 150        # número de listas (clusters)
 FAISS_NPROBE = 2         # número de listas exploradas na busca
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "/app/data")
+DATA_DIR = os.path.join(BASE_DIR, "app", "data")
 REFERENCE_DATA_PATH = os.path.join(BASE_DIR, "references.json.gz")
 FAISS_INDEX_PATH = os.path.join(DATA_DIR, "faiss_index.bin")
 LABELS_ARRAY_PATH = os.path.join(DATA_DIR, "labels.npy")
@@ -39,20 +37,17 @@ def main():
         
     logger.info(f"Loaded {len(vectors)} records.")
     
-    # Create data directory if it doesn't exist
     os.makedirs(DATA_DIR, exist_ok=True)
     
-    # Save labels as integers (1 for fraud, 0 otherwise)
     labels_int = [1 if label == "fraud" else 0 for label in labels]
     labels_array = np.array(labels_int, dtype=np.int8)
     np.save(LABELS_ARRAY_PATH, labels_array)
-    logger.info(f"Saved labels as integers to {LABELS_ARRAY_PATH}")
+    logger.info(f"Saved labels to {LABELS_ARRAY_PATH}")
     
-    # Build FAISS index with IVF + quantization (QT_8bit)
     vectors_array = np.array(vectors, dtype=np.float32)
     n_vectors, dimension = vectors_array.shape
     
-    logger.info(f"Building FAISS IndexIVFScalarQuantizer (QT_8bit) for {n_vectors} vectors...")
+    logger.info(f"Building FAISS IndexIVFScalarQuantizer (QT_8bit) for {n_vectors} vectors, dim={dimension}...")
     quantizer = faiss.IndexFlatL2(dimension)
     
     index = faiss.IndexIVFScalarQuantizer(

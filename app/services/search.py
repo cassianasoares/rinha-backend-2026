@@ -1,6 +1,6 @@
 import logging
 from typing import Tuple
-from pathlib import Path
+import os
 
 import faiss
 import numpy as np
@@ -37,19 +37,16 @@ def save_index(index: faiss.Index, path: str = config.FAISS_INDEX_PATH) -> None:
     logger.info(f"FAISS index saved to {path}")
 
 
-def load_index(path: str = config.FAISS_INDEX_PATH) -> faiss.Index | None:
-    if not Path(path).exists():
+def load_index(path):
+    if not os.path.exists(path):
         return None
-    index = faiss.read_index(str(path), faiss.IO_FLAG_MMAP)
+    try:
+        index = faiss.read_index(str(path))
+        return index
+    except Exception as e:
+        logger.error(f"Failed to load FAISS index: {e}")
+        return None
 
-    # Ajusta nprobe se o índice suportar (IVF)
-    if hasattr(index, "nprobe"):
-        index.nprobe = config.FAISS_NPROBE
-        logger.info(f"FAISS index loaded with nprobe={index.nprobe}")
-    else:
-        logger.info(f"FAISS index loaded (type={type(index).__name__})")
-
-    return index
 
 
 def set_global_index(index: faiss.Index) -> None:
