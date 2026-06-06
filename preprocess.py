@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Configs
 FAISS_DIMENSION = 14
 FAISS_NLIST = 150        # número de listas (clusters)
-FAISS_NPROBE = 2        # número de listas exploradas na busca
+FAISS_NPROBE = 2         # número de listas exploradas na busca
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 REFERENCE_DATA_PATH = os.path.join(BASE_DIR, "references.json.gz")
@@ -38,6 +38,9 @@ def main():
         labels.append(record["label"])
         
     logger.info(f"Loaded {len(vectors)} records.")
+    
+    # Create data directory if it doesn't exist
+    os.makedirs(DATA_DIR, exist_ok=True)
     
     # Save labels as integers (1 for fraud, 0 otherwise)
     labels_int = [1 if label == "fraud" else 0 for label in labels]
